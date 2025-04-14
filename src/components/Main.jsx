@@ -3,7 +3,12 @@ import axios from "axios";
 
 
 function Main() {
-    const [currentPost, setCurrentPost] = useState({});
+    const [currentPost, setCurrentPost] = useState({
+        "title": "",
+        "author": "",
+        "body": "",
+        "public": ""
+    });
     const [posts, setPosts] = useState([]);
     const postApi = "https://67c5b4f3351c081993fb1ab6.mockapi.io/api/posts";
     const [formData, setFormData] = useState({
@@ -29,12 +34,6 @@ function Main() {
         axios.post(postApi, formData)
             .then((response) => {
                 setPosted(true)
-                setFormData({
-                    "author": "",
-                    "title": "",
-                    "body": "",
-                    "public": false,
-                })
                 console.log("Response", response)
 
                 alert(`Status: ${response.request.status}
@@ -55,8 +54,10 @@ function Main() {
     }
 
     useEffect(apiGetResponse, [posted])
-    useEffect(() =>
-        setCurrentPost(posts.filter(post => post.title === formData.title))
+    useEffect(() => {
+        setCurrentPost(posts.find(post => post.title === formData.title))
+        console.log("currentPost", currentPost);
+    }
         , [posts, formData]);
 
     return <main>
@@ -82,13 +83,13 @@ function Main() {
             <button type="submit">Invia il Post</button>
         </form>
 
-
-        <div className="createdPost">
-            <h3>Titolo: {currentPost.title}</h3>
-            <h4>Autore: {currentPost.author} </h4>
-            <p>Body: {currentPost.body} <br /></p>
-            <p>Public: {currentPost.public} </p>
-        </div>
+        {currentPost &&
+            <div className="createdPost">
+                <h3>Titolo: {currentPost.title}</h3>
+                <h4>Autore: {currentPost.author} </h4>
+                <p>Body: {currentPost.body} <br /></p>
+                <p>Public: {currentPost.public} </p>
+            </div>}
     </main>
 }
 
