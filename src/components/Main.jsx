@@ -1,18 +1,87 @@
+import { useState, useEffect } from "react";
+import axios from "axios";
+
+
 function Main() {
 
+    const postApi = "https://67c5b4f3351c081993fb1ab6.mockapi.io/api/posts";
+
+    const [formData, setFormData] = useState({
+        "author": "",
+        "title": "",
+        "body": "",
+        "public": false,
+    })
+
+    const [posted, setPosted] = useState(false);
+
+    const postCreating = (e) => {
+        const value = (e.target.type === "checkbox") ? e.target.checked : e.target.value;
+        setFormData({
+            ...formData,
+            [e.target.name]: value
+        });
+    }
+
+    const sendPost = (e) => {
+        e.preventDefault();
+        console.log(formData)
+        axios.post(postApi, formData)
+            .then((response) => {
+                setPosted(true)
+                setFormData({
+                    "author": "",
+                    "title": "",
+                    "body": "",
+                    "public": false,
+                })
+                console.log("Response", response)
+                alert(`Status: ${response.request.status}
+                    Message: ${response.request.statusText}`)
+            }
+            ).catch((err) => alert(err.message));
+
+    }
+
+    const apiGetResponse = () => {
+        if (posted) {
+            axios.get(postApi).then(response => console.log("Axios Get Response", response.data))
+        }
+    }
+
+    useEffect(apiGetResponse, [posted])
 
 
     return <main>
 
-        <form>
-
+        <form onSubmit={sendPost}>
+            <h2>Crea Un Nuovo Post</h2>
+            <div className="author">
+                <label htmlFor="post-author">Inserisci il nome dell'Autore</label>
+                <input type="text" name="author" id="post-author" onChange={postCreating} />
+            </div>
+            <div className="title">
+                <label htmlFor="post-title">Inserisci il Titolo del Post</label>
+                <input type="text" name="title" id="post-title" onChange={postCreating} />
+            </div>
+            <div className="body-blog">
+                <label htmlFor="post-body">Inserisci il Testo del Post</label>
+                <textarea name="body" id="post-body" onChange={postCreating}></textarea>
+            </div>
+            <div className="public">
+                <label htmlFor="post-public">Pubblico:</label>
+                <input type="checkbox" name="public" id="post-public" onChange={postCreating} />
+            </div>
+            <button type="submit">Invia il Post</button>
         </form>
-        - author (string) - L’autore del post
-        - title (string) - Il titolo del post
-        - body (string) - Il testo del post
-        - public (boolean) - Se il post deve essere pubblico (true) o una bozza (false)
 
 
+        <div className="createdPost">
+            <h3>Titolo: {formData.title}</h3>
+            <h4>Autore: {formData.author} </h4>
+            <p>Body: {formData.body} <br /></p>
+            <p>Public: {formData.public} </p>
+        </div>
     </main>
 }
 
